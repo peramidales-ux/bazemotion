@@ -11,6 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,14 +31,21 @@ fun BazeMotionApp() {
     var selectedTab by remember { mutableStateOf(0) }
     val context = LocalContext.current
     
+    val tabs = listOf(
+        TabItem("Редактор", Icons.Default.Edit),
+        TabItem("Проекты", Icons.Default.Folder),
+        TabItem("Настройки", Icons.Default.Settings)
+    )
+    
     Scaffold(
         bottomBar = {
             NavigationBar {
-                listOf("Редактор", "Проекты", "Настройки").forEachIndexed { index, title ->
+                tabs.forEachIndexed { index, tab ->
                     NavigationBarItem(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        label = { Text(title) }
+                        icon = { Icon(tab.icon, contentDescription = tab.title) },
+                        label = { Text(tab.title) }
                     )
                 }
             }
@@ -55,6 +65,8 @@ fun BazeMotionApp() {
         }
     }
 }
+
+data class TabItem(val title: String, val icon: ImageVector)
 
 @Composable
 fun EditorScreen() {
