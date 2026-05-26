@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 class MainActivity : ComponentActivity() {
@@ -32,9 +34,9 @@ fun BazeMotionApp() {
     val context = LocalContext.current
     
     val tabs = listOf(
-        TabItem("Редактор", Icons.Default.Edit),
-        TabItem("Проекты", Icons.Default.Folder),
-        TabItem("Настройки", Icons.Default.Settings)
+        TabItem("Редактор", Icons.Filled.Edit),
+        TabItem("Проекты", Icons.Filled.Folder),
+        TabItem("Настройки", Icons.Filled.Settings)
     )
     
     Scaffold(
