@@ -1,18 +1,16 @@
 package com.bazemotion
 
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -27,98 +25,138 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+data class ProjectItem(
+    val name: String,
+    val resolution: String,
+    val fps: Int
+)
+
 @Composable
 fun BazeMotionApp() {
 
-    val context = LocalContext.current
-
-    var selectedVideoUri by remember {
-        mutableStateOf<Uri?>(null)
+    val projects = remember {
+        mutableStateListOf(
+            ProjectItem("Demo Project", "1920x1080", 30)
+        )
     }
 
-    var videoName by remember {
-        mutableStateOf<String?>(null)
-    }
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
+        Surface(
+            tonalElevation = 4.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "🎬 Baze Motion",
+                    style = MaterialTheme.typography.headlineMedium
+                )
 
-        selectedVideoUri = uri
+                Text(
+                    text = "Video Editor Alpha"
+                )
+            }
+        }
 
-        uri?.let {
-            val cursor = context.contentResolver.query(
-                it,
-                null,
-                null,
-                null,
-                null
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+
+            Button(
+                onClick = {
+                    projects.add(
+                        ProjectItem(
+                            "New Project ${projects.size + 1}",
+                            "1920x1080",
+                            30
+                        )
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("➕ Новый проект")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Мои проекты",
+                style = MaterialTheme.typography.titleLarge
             )
+        }
 
-            cursor?.use { c ->
-                if (c.moveToFirst()) {
-                    val index =
-                        c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
 
-                    if (index >= 0) {
-                        videoName = c.getString(index)
+            items(projects) { project ->
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+
+                        Text(
+                            text = project.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Разрешение: ${project.resolution}"
+                        )
+
+                        Text(
+                            text = "FPS: ${project.fps}"
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Button(
+                            onClick = {
+                            }
+                        ) {
+                            Text("Открыть")
+                        }
                     }
                 }
             }
         }
-    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        NavigationBar {
 
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        Text(
-            text = "🎬 Baze Motion",
-            style = MaterialTheme.typography.headlineLarge
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Видео редактор (альфа)"
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = {
-                launcher.launch("video/*")
-            }
-        ) {
-            Text("📁 Выбрать видео")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        if (videoName != null) {
-
-            Text(
-                text = "Выбрано:"
+            NavigationBarItem(
+                selected = true,
+                onClick = {},
+                icon = { Text("🏠") },
+                label = { Text("Проекты") }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = videoName!!
+            NavigationBarItem(
+                selected = false,
+                onClick = {},
+                icon = { Text("🎞") },
+                label = { Text("Редактор") }
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(
-                onClick = { }
-            ) {
-                Text("➡ Далее")
-            }
+            NavigationBarItem(
+                selected = false,
+                onClick = {},
+                icon = { Text("📤") },
+                label = { Text("Экспорт") }
+            )
         }
     }
 }
