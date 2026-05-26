@@ -42,4 +42,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    
+    // FFmpeg для Android
+    implementation("com.arthenica:ffmpeg-kit-full:6.0-2")
 }
