@@ -11,11 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,23 +28,24 @@ fun BazeMotionApp() {
     var selectedTab by remember { mutableStateOf(0) }
     val context = LocalContext.current
     
-    val tabs = listOf(
-        TabItem("Редактор", Icons.Filled.Edit),
-        TabItem("Проекты", Icons.Filled.Folder),
-        TabItem("Настройки", Icons.Filled.Settings)
-    )
-    
     Scaffold(
         bottomBar = {
             NavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        icon = { Icon(tab.icon, contentDescription = tab.title) },
-                        label = { Text(tab.title) }
-                    )
-                }
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    label = { Text("Редактор") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    label = { Text("Проекты") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 },
+                    label = { Text("Настройки") }
+                )
             }
         }
     ) { padding ->
@@ -67,8 +63,6 @@ fun BazeMotionApp() {
         }
     }
 }
-
-data class TabItem(val title: String, val icon: ImageVector)
 
 @Composable
 fun EditorScreen() {
