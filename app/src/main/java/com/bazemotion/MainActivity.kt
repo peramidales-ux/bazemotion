@@ -1,13 +1,11 @@
 package com.bazemotion
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -18,70 +16,108 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
-
-    private var selectedVideoUri: Uri? = null
-
-    private val pickVideoLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            selectedVideoUri = uri
-            Toast.makeText(this, "Видео выбрано", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MaterialTheme {
                 BazeMotionApp()
             }
         }
     }
+}
 
-    @Composable
-    fun BazeMotionApp() {
-        val context = LocalContext.current
-        var videoName by remember { mutableStateOf<String?>(null) }
+@Composable
+fun BazeMotionApp() {
 
-        LaunchedEffect(selectedVideoUri) {
-            selectedVideoUri?.let { uri ->
-                val cursor = contentResolver.query(uri, null, null, null, null)
-                cursor?.use {
-                    if (it.moveToFirst()) {
-                        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                        videoName = it.getString(nameIndex)
+    val context = LocalContext.current
+
+    var selectedVideoUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var videoName by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+
+        selectedVideoUri = uri
+
+        uri?.let {
+            val cursor = context.contentResolver.query(
+                it,
+                null,
+                null,
+                null,
+                null
+            )
+
+            cursor?.use { c ->
+                if (c.moveToFirst()) {
+                    val index =
+                        c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+
+                    if (index >= 0) {
+                        videoName = c.getString(index)
                     }
                 }
             }
         }
+    }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text("🎬 Baze Motion", style = MaterialTheme.typography.headlineLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Видео редактор (альфа)", style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = {
-                pickVideoLauncher.launch("video/*")
-            }) {
-                Text("📁 Выбрать видео")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Text(
+            text = "🎬 Baze Motion",
+            style = MaterialTheme.typography.headlineLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Видео редактор (альфа)"
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = {
+                launcher.launch("video/*")
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            videoName?.let {
-                Text("Выбрано: $it", style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    Toast.makeText(context, "Дальше: работа с видео", Toast.LENGTH_SHORT).show()
-                    // Следующий шаг: превью/обрезка
-                }) {
-                    Text("➡ Далее")
-                }
+        ) {
+            Text("📁 Выбрать видео")
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        if (videoName != null) {
+
+            Text(
+                text = "Выбрано:"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = videoName!!
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = { }
+            ) {
+                Text("➡ Далее")
             }
         }
     }
